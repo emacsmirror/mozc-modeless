@@ -37,6 +37,7 @@
 
 (require 'mozc)
 (require 'mozc-modeless-english-words)
+(require 'mozc-modeless-typo)
 
 ;;; Customization
 
@@ -237,7 +238,10 @@ the expression instead of converting."
         (if (not roman-data)
             (message "No romaji found after slash")
           (let* ((start (car roman-data))
-                 (roman-string (cdr roman-data)))
+                 (roman-string (cdr roman-data))
+                 (corrected (mozc-modeless-typo-correct roman-string)))
+            (when corrected
+              (setq roman-string corrected))
             ;; Save state
             (setq mozc-modeless--active t
                   mozc-modeless--start-pos start
@@ -471,7 +475,8 @@ used to merge all changes into a single undo group.
 When PUNCT-CHAR is non-nil and `mozc-modeless-ambient-punctuation-auto-confirm' is nil,
 the conversion stays in Mozc candidate selection mode (like C-j)."
   (let* ((start (car romaji-info))
-         (roman-string (cdr romaji-info))
+         (roman-string (or (mozc-modeless-typo-correct (cdr romaji-info))
+                           (cdr romaji-info)))
          (skip-count (1+ (length roman-string)))
          (auto-confirm (or (null punct-char)
                            mozc-modeless-ambient-punctuation-auto-confirm)))
