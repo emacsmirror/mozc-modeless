@@ -50,26 +50,28 @@ HIRAGANA_TO_ROMAJI = {
 }
 
 
-def hiragana_to_romaji(hiragana):
-    """Convert a hiragana string to romaji (mozc default table).
+def hiragana_to_romaji_variants(hiragana):
+    """Convert a hiragana string to romaji variants (mozc default table).
 
-    Returns the romaji string, or None if conversion fails.
+    Returns a list of romaji strings (multiple variants for ん: n/nn),
+    or empty list if conversion fails.
     """
-    result = []
+    # Build list of segments, where each segment is a list of variants
+    # e.g., へんかん -> [["he"], ["n", "nn"], ["ka"], ["n", "nn"]]
+    segments = []
     i = 0
     while i < len(hiragana):
         # Try 2-char match first (拗音)
         if i + 1 < len(hiragana):
             two_char = hiragana[i:i+2]
             if two_char in HIRAGANA_TO_ROMAJI:
-                result.append(HIRAGANA_TO_ROMAJI[two_char])
+                segments.append([HIRAGANA_TO_ROMAJI[two_char]])
                 i += 2
                 continue
 
         # Handle 促音 (っ): double the next consonant
         if hiragana[i] == 'っ':
             if i + 1 < len(hiragana):
-                # Look ahead to get the next syllable's consonant
                 next_romaji = None
                 if i + 2 < len(hiragana):
                     two_char = hiragana[i+1:i+3]
@@ -78,29 +80,44 @@ def hiragana_to_romaji(hiragana):
                 if next_romaji is None and hiragana[i+1] in HIRAGANA_TO_ROMAJI:
                     next_romaji = HIRAGANA_TO_ROMAJI[hiragana[i+1]]
                 if next_romaji and next_romaji[0].isalpha():
-                    result.append(next_romaji[0])  # double the consonant
+                    segments.append([next_romaji[0]])
                     i += 1
                     continue
-            # Fallback: can't determine next consonant
-            return None
+            return []
 
         # Single char match
         one_char = hiragana[i]
         if one_char in HIRAGANA_TO_ROMAJI:
             romaji = HIRAGANA_TO_ROMAJI[one_char]
-            # Handle ん before vowel or y: use nn
-            if one_char == 'ん' and i + 1 < len(hiragana):
-                next_char = hiragana[i+1]
-                next_romaji = HIRAGANA_TO_ROMAJI.get(next_char, '')
-                if next_romaji and next_romaji[0] in 'aiueony':
-                    romaji = 'nn'
-            result.append(romaji)
+            if one_char == 'ん':
+                # ん always has both n and nn variants
+                segments.append(['n', 'nn'])
+            else:
+                segments.append([romaji])
             i += 1
         else:
-            # Unknown character - skip this entry
-            return None
+            return []
 
-    return ''.join(result)
+    # Expand all combinations of segments
+    if not segments:
+        return ['']
+    results = ['']
+    for seg_variants in segments:
+        new_results = []
+        for prefix in results:
+            for variant in seg_variants:
+                new_results.append(prefix + variant)
+        results = new_results
+    return results
+
+
+def hiragana_to_romaji(hiragana):
+    """Convert a hiragana string to romaji (mozc default table).
+
+    Returns the primary romaji string, or None if conversion fails.
+    """
+    variants = hiragana_to_romaji_variants(hiragana)
+    return variants[0] if variants else None
 
 
 def expand_okuri_ari(hiragana_stem, okurigana_consonant):
@@ -181,13 +198,14 @@ def main():
     skk_file = sys.argv[1]
     entries = parse_skk_dict(skk_file)
 
-    # Convert to romaji
+    # Convert to romaji (including nn variants for ん)
     romaji_words = set()
     failed = 0
     for hiragana in entries:
-        romaji = hiragana_to_romaji(hiragana)
-        if romaji:
-            romaji_words.add(romaji)
+        variants = hiragana_to_romaji_variants(hiragana)
+        if variants:
+            for v in variants:
+                romaji_words.add(v)
         else:
             failed += 1
 
