@@ -278,20 +278,10 @@ Used when STR is parseable but not in the dictionary."
             candidates))
     (nreverse candidates)))
 
-(defun mozc-modeless-typo-correct (str)
-  "Try to correct typos in romaji string STR.
-Returns the corrected string if a correction was found, or nil if:
-- STR is already valid and in the dictionary
-- No valid correction candidate was found
-
-The correction process:
-1. Parse STR as romaji syllables
-2. If parse fails: generate candidates near error, find parseable+dict match
-3. If parse succeeds but not in dict: generate candidates everywhere,
-   find parseable+dict match
-4. If parse succeeds and in dict: return nil (no correction needed)"
-  (let* ((str-down (downcase str))
-         (parse-result (mozc-modeless-typo--parse-romaji-internal str-down))
+(defun mozc-modeless-typo--correct-word (str-down)
+  "Try to correct a single romaji word STR-DOWN (already downcased).
+Returns the corrected string, or nil if no correction needed/found."
+  (let* ((parse-result (mozc-modeless-typo--parse-romaji-internal str-down))
          (syllables (car parse-result))
          (error-pos (cdr parse-result)))
     (cond
@@ -319,6 +309,30 @@ The correction process:
           nil)))
      ;; Case 3: Valid romaji and in dictionary - no correction needed
      (t nil))))
+
+(defun mozc-modeless-typo-correct (str)
+  "Try to correct typos in romaji string STR.
+If STR contains spaces, each word is checked independently.
+Returns the corrected string if any word was corrected, or nil if
+no corrections were needed.
+
+The correction process per word:
+1. Parse as romaji syllables
+2. If parse fails: generate candidates near error, find parseable+dict match
+3. If parse succeeds but not in dict: generate candidates, find dict match
+4. If parse succeeds and in dict: no correction needed"
+  (let* ((words (split-string str " "))
+         (any-corrected nil)
+         (result-words
+          (mapcar (lambda (word)
+                    (let ((corrected (mozc-modeless-typo--correct-word
+                                     (downcase word))))
+                      (when corrected
+                        (setq any-corrected t))
+                      (or corrected word)))
+                  words)))
+    (when any-corrected
+      (mapconcat #'identity result-words " "))))
 
 (provide 'mozc-modeless-typo)
 ;;; mozc-modeless-typo.el ends here

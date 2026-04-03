@@ -511,4 +511,60 @@
   "Parser prefers kya over ki+a."
   (should (equal (mozc-modeless-typo--parse-romaji "kya") '("kya"))))
 
+;; ============================================================
+;; 18. Space-separated word correction (per-word typo check)
+;; ============================================================
+
+(ert-deftest typo-correct-space-separated-single-typo ()
+  "Only the typo word is corrected; correct words are preserved."
+  (should (equal (mozc-modeless-typo-correct "nihovgo wo hennkan")
+                 "nihongo wo hennkan")))
+
+(ert-deftest typo-correct-space-separated-multiple-typos ()
+  "Multiple typos in different words are all corrected."
+  (should (equal (mozc-modeless-typo-correct "matq nihovgo")
+                 "mata nihongo")))
+
+(ert-deftest typo-correct-space-separated-all-valid ()
+  "All words valid returns nil (no correction needed)."
+  (should-not (mozc-modeless-typo-correct "nihongo wo henkan")))
+
+(ert-deftest typo-correct-space-separated-valid-not-in-dict ()
+  "Valid-syllable typo in multi-word input is corrected."
+  ;; taheru is valid romaji but not in dict -> taberu
+  (should (equal (mozc-modeless-typo-correct "taheru mono wo kau")
+                 "taberu mono wo kau")))
+
+(ert-deftest typo-correct-space-separated-preserves-particles ()
+  "Particles (wo, ga, ni, etc.) are not modified."
+  (should (equal (mozc-modeless-typo-correct "nihovgo wo kakj")
+                 "nihongo wo kaku")))
+
+(ert-deftest typo-correct-space-separated-nn-variants ()
+  "nn variants are recognized correctly in multi-word input."
+  (should-not (mozc-modeless-typo-correct "hennkan wo suru"))
+  (should-not (mozc-modeless-typo-correct "henkan wo suru")))
+
+(ert-deftest typo-correct-space-separated-single-word-unchanged ()
+  "Single word without spaces still works as before."
+  (should (equal (mozc-modeless-typo-correct "nihovgo") "nihongo"))
+  (should-not (mozc-modeless-typo-correct "nihongo")))
+
+(ert-deftest typo-correct-space-separated-result-is-parseable ()
+  "Each word in the correction result is parseable."
+  (let ((result (mozc-modeless-typo-correct "nihovgo wo taheru")))
+    (when result
+      (dolist (word (split-string result " "))
+        (should (mozc-modeless-typo--parse-romaji word))))))
+
+(ert-deftest typo-correct-space-separated-trailing-space ()
+  "Trailing space does not cause errors."
+  (let ((result (mozc-modeless-typo-correct "nihovgo ")))
+    (should (or (null result) (stringp result)))))
+
+(ert-deftest typo-correct-space-separated-multiple-spaces ()
+  "Multiple consecutive spaces are handled."
+  (let ((result (mozc-modeless-typo-correct "nihongo  henkan")))
+    (should (or (null result) (stringp result)))))
+
 ;;; test-mozc-modeless-typo.el ends here
