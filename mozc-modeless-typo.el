@@ -30,9 +30,9 @@
     ;; K-row
     "ka" "ki" "ku" "ke" "ko" "kya" "kyu" "kyo"
     ;; S-row
-    "sa" "si" "shi" "su" "se" "so" "sha" "shu" "sho"
+    "sa" "si" "shi" "su" "se" "so" "sha" "shu" "sho" "sya" "syu" "syo"
     ;; T-row
-    "ta" "ti" "chi" "tu" "tsu" "te" "to" "cha" "chu" "cho"
+    "ta" "ti" "chi" "tu" "tsu" "te" "to" "cha" "chu" "cho" "tya" "tyu" "tyo"
     ;; N-row
     "na" "ni" "nu" "ne" "no" "nya" "nyu" "nyo"
     ;; H-row
@@ -50,21 +50,25 @@
     ;; G-row
     "ga" "gi" "gu" "ge" "go" "gya" "gyu" "gyo"
     ;; Z-row
-    "za" "zi" "ji" "zu" "ze" "zo" "ja" "ju" "jo"
+    "za" "zi" "ji" "zu" "ze" "zo" "ja" "ju" "jo" "zya" "zyu" "zyo"
     ;; D-row
-    "da" "di" "du" "de" "do"
+    "da" "di" "du" "de" "do" "dha" "dhi" "dhu" "dhe" "dho"
     ;; B-row
     "ba" "bi" "bu" "be" "bo" "bya" "byu" "byo"
     ;; P-row
     "pa" "pi" "pu" "pe" "po" "pya" "pyu" "pyo"
     ;; Small kana
     "xa" "xi" "xu" "xe" "xo" "xya" "xyu" "xyo" "xtu"
-    ;; Special
-    "fa" "fi" "fe" "fo"
+    ;; Special / alternate input styles
+    "fa" "fi" "fu" "fe" "fo"
     "dya" "dyu" "dyo"
-    "thi" "thu"
+    "thi" "thu" "tsa" "tsi" "tse" "tso"
     "la" "li" "lu" "le" "lo"
-    "lya" "lyu" "lyo" "ltu")
+    "lya" "lyu" "lyo" "ltu" "lka" "lke"
+    "va" "vi" "vu" "ve" "vo"
+    "wha" "whi" "whu" "whe" "who"
+    "jya" "jyu" "jyo"
+    "cya" "cyu" "cyo")
   "List of valid romaji syllable patterns (mozc default table).")
 
 ;;; Trie data structure
