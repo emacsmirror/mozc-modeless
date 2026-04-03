@@ -255,7 +255,9 @@ Candidates are generated in order of likelihood:
 
 (defun mozc-modeless-typo--generate-all-candidates (str)
   "Generate correction candidates for STR by trying edits at every position.
-Used when STR is parseable but not in the dictionary."
+Used when STR is parseable but not in the dictionary.
+Only QWERTY neighbor substitution is used to avoid false corrections
+\(e.g., deletion turning a valid word into a shorter different word)."
   (let ((candidates nil)
         (len (length str)))
     ;; Substitution with QWERTY neighbors at every position
@@ -266,49 +268,44 @@ Used when STR is parseable but not in the dictionary."
                         (char-to-string (aref neighbors j))
                         (substring str (1+ i)))
                 candidates))))
-    ;; Deletion at every position
-    (dotimes (i len)
-      (push (concat (substring str 0 i) (substring str (1+ i))) candidates))
-    ;; Transposition at every position
-    (dotimes (i (1- len))
-      (push (concat (substring str 0 i)
-                    (char-to-string (aref str (1+ i)))
-                    (char-to-string (aref str i))
-                    (substring str (+ i 2)))
-            candidates))
     (nreverse candidates)))
 
 (defun mozc-modeless-typo--correct-word (str-down)
   "Try to correct a single romaji word STR-DOWN (already downcased).
-Returns the corrected string, or nil if no correction needed/found."
-  (let* ((parse-result (mozc-modeless-typo--parse-romaji-internal str-down))
-         (syllables (car parse-result))
-         (error-pos (cdr parse-result)))
-    (cond
-     ;; Case 1: Parse failed - invalid romaji sequence
-     (error-pos
-      (let ((candidates (mozc-modeless-typo--generate-candidates str-down error-pos))
-            (first-parseable nil))
-        (catch 'found
-          (dolist (candidate candidates)
-            (when (mozc-modeless-typo--parse-romaji candidate)
-              (unless first-parseable
-                (setq first-parseable candidate))
-              (when (mozc-modeless--romaji-word-p candidate)
-                (throw 'found candidate))))
-          ;; No dictionary match; return first parseable candidate
-          first-parseable)))
-     ;; Case 2: Parse succeeded but not in dictionary - possible valid-syllable typo
-     ((and syllables (not (mozc-modeless--romaji-word-p str-down)))
-      (let ((candidates (mozc-modeless-typo--generate-all-candidates str-down)))
-        (catch 'found
-          (dolist (candidate candidates)
-            (when (and (mozc-modeless-typo--parse-romaji candidate)
-                       (mozc-modeless--romaji-word-p candidate))
-              (throw 'found candidate)))
-          nil)))
-     ;; Case 3: Valid romaji and in dictionary - no correction needed
-     (t nil))))
+Returns the corrected string, or nil if no correction needed/found.
+Strings that contain no alphabetic characters are skipped."
+  ;; Skip non-alphabetic strings (punctuation, numbers, etc.)
+  (unless (string-match-p "[a-z]" str-down)
+    (setq str-down nil))
+  (when str-down
+    (let* ((parse-result (mozc-modeless-typo--parse-romaji-internal str-down))
+           (syllables (car parse-result))
+           (error-pos (cdr parse-result)))
+      (cond
+       ;; Case 1: Parse failed - invalid romaji sequence
+       (error-pos
+        (let ((candidates (mozc-modeless-typo--generate-candidates str-down error-pos))
+              (first-parseable nil))
+          (catch 'found
+            (dolist (candidate candidates)
+              (when (mozc-modeless-typo--parse-romaji candidate)
+                (unless first-parseable
+                  (setq first-parseable candidate))
+                (when (mozc-modeless--romaji-word-p candidate)
+                  (throw 'found candidate))))
+            ;; No dictionary match; return first parseable candidate
+            first-parseable)))
+       ;; Case 2: Parse succeeded but not in dictionary - possible valid-syllable typo
+       ((and syllables (not (mozc-modeless--romaji-word-p str-down)))
+        (let ((candidates (mozc-modeless-typo--generate-all-candidates str-down)))
+          (catch 'found
+            (dolist (candidate candidates)
+              (when (and (mozc-modeless-typo--parse-romaji candidate)
+                         (mozc-modeless--romaji-word-p candidate))
+                (throw 'found candidate)))
+            nil)))
+       ;; Case 3: Valid romaji and in dictionary - no correction needed
+       (t nil)))))
 
 (defun mozc-modeless-typo-correct (str)
   "Try to correct typos in romaji string STR.
