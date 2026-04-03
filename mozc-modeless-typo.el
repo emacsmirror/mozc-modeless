@@ -295,16 +295,11 @@ Strings that contain no alphabetic characters are skipped."
                   (throw 'found candidate))))
             ;; No dictionary match; return first parseable candidate
             first-parseable)))
-       ;; Case 2: Parse succeeded but not in dictionary - possible valid-syllable typo
-       ((and syllables (not (mozc-modeless--romaji-word-p str-down)))
-        (let ((candidates (mozc-modeless-typo--generate-all-candidates str-down)))
-          (catch 'found
-            (dolist (candidate candidates)
-              (when (and (mozc-modeless-typo--parse-romaji candidate)
-                         (mozc-modeless--romaji-word-p candidate))
-                (throw 'found candidate)))
-            nil)))
-       ;; Case 3: Valid romaji and in dictionary - no correction needed
+       ;; Case 2/3: Parse succeeded - no correction
+       ;; Valid romaji sequences are passed through to mozc as-is.
+       ;; (SKK dictionary does not cover all conjugation forms,
+       ;; so correcting valid romaji causes false positives like
+       ;; shimasu -> shinasu)
        (t nil)))))
 
 (defun mozc-modeless-typo-correct (str)
@@ -316,8 +311,7 @@ no corrections were needed.
 The correction process per word:
 1. Parse as romaji syllables
 2. If parse fails: generate candidates near error, find parseable+dict match
-3. If parse succeeds but not in dict: generate candidates, find dict match
-4. If parse succeeds and in dict: no correction needed"
+3. If parse succeeds: no correction (pass through to mozc as-is)"
   (let* ((words (split-string str " "))
          (any-corrected nil)
          (result-words

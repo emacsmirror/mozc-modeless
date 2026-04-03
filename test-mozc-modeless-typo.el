@@ -245,24 +245,15 @@
 ;; 6. Typo correction: Case 2 - Valid romaji, not in dictionary
 ;; ============================================================
 
-(ert-deftest typo-correct-valid-not-in-dict ()
-  "Valid romaji not in dictionary is corrected via neighbor substitution."
-  ;; taheru: ta-he-ru is valid romaji, but not a word; taberu is
-  (should (equal (mozc-modeless-typo-correct "taheru") "taberu"))
-  ;; h and b are QWERTY neighbors
-  )
-
-(ert-deftest typo-correct-valid-not-in-dict-deletion ()
-  "Valid romaji not in dict, correctable by deletion."
-  ;; mataa: ma-ta-a, valid romaji, not in dict; mata is
-  (let ((result (mozc-modeless-typo-correct "mataa")))
-    (should (or (null result) (equal result "mata")))))
-
-(ert-deftest typo-correct-valid-not-in-dict-transposition ()
-  "Valid romaji not in dict, correctable by transposition."
-  ;; amta: a-m-ta, if parseable -> check if swap gives mata
-  (let ((result (mozc-modeless-typo-correct "maata")))
-    (should (or (null result) (equal result "mata")))))
+(ert-deftest typo-correct-valid-not-in-dict-no-correction ()
+  "Valid romaji not in dictionary is NOT corrected.
+SKK dictionary does not cover all conjugation forms, so correcting
+valid romaji causes false positives (e.g., shimasu -> shinasu)."
+  (should-not (mozc-modeless-typo-correct "taheru"))
+  (should-not (mozc-modeless-typo-correct "shimasu"))
+  (should-not (mozc-modeless-typo-correct "ninatee"))
+  (should-not (mozc-modeless-typo-correct "mataa"))
+  (should-not (mozc-modeless-typo-correct "maata")))
 
 ;; ============================================================
 ;; 7. Typo correction: Case 3 - Valid and in dictionary (no correction)
@@ -530,10 +521,8 @@
   (should-not (mozc-modeless-typo-correct "nihongo wo henkan")))
 
 (ert-deftest typo-correct-space-separated-valid-not-in-dict ()
-  "Valid-syllable typo in multi-word input is corrected."
-  ;; taheru is valid romaji but not in dict -> taberu
-  (should (equal (mozc-modeless-typo-correct "taheru mono wo kau")
-                 "taberu mono wo kau")))
+  "Valid romaji not in dict is NOT corrected (even in multi-word input)."
+  (should-not (mozc-modeless-typo-correct "taheru mono wo kau")))
 
 (ert-deftest typo-correct-space-separated-preserves-particles ()
   "Particles (wo, ga, ni, etc.) are not modified."
