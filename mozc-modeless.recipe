@@ -1,0 +1,4 @@
+(mozc-modeless
+ :fetcher github
+ :repo "kiyoka/mozc-modeless-emacs"
+ :files ("mozc-modeless.el" "mozc-modeless-english-words.el"))

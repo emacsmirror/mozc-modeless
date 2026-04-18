@@ -1,5 +1,11 @@
 ;;; mozc-modeless-english-words.el --- English words dictionary for romaji-to-hiragana conversion  -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2025 Kiyoka Nishiyama
+
+;; Author: Kiyoka Nishiyama <kiyokap@gmail.com>
+;; Keywords: i18n, input-method
+;; URL: https://github.com/kiyoka/mozc-modeless-emacs
+
 ;; This file is generated from SCOWL (Spell Checker Oriented Word Lists).
 ;; Source: http://wordlist.aspell.net/
 ;; SCOWL Version: 2020.12.07

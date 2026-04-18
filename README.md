@@ -1,5 +1,7 @@
 # mozc-modeless.el
 
+[![MELPA](https://melpa.org/packages/mozc-modeless-badge.svg)](https://melpa.org/#/mozc-modeless)
+
 Emacs用のモードレス日本語入力インターフェースです。
 通常は英数入力で、`C-j` を押したときだけカーソルの直前のローマ字文字列をMozcに渡してMozcの変換モードに入ります。
 
@@ -24,7 +26,24 @@ https://github.com/user-attachments/assets/371714d6-369c-486e-903f-13aaa434f144
 
 **注意**: Emacs 29.0以上が必要です。
 
-### 方法1: package-vc-install を使う（推奨）
+### 方法1: MELPA から package-install でインストール（推奨）
+
+MELPAが設定済みの場合：
+
+```elisp
+M-x package-install RET mozc-modeless RET
+```
+
+または init.el に追記：
+
+```elisp
+(use-package mozc-modeless
+  :ensure t
+  :config
+  (global-mozc-modeless-mode 1))
+```
+
+### 方法2: package-vc-install を使う
 
 Emacs 29以降では、`package-vc-install`でGitHubから直接インストールできます。
 
@@ -43,7 +62,7 @@ Emacs 29以降では、`package-vc-install`でGitHubから直接インストー�
   (global-mozc-modeless-mode 1))
 ```
 
-### 方法2: 手動でインストール
+### 方法3: 手動でインストール
 
 - 事前準備
 
