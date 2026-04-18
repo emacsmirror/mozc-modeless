@@ -6,13 +6,24 @@
 ;; Keywords: i18n, input-method
 ;; URL: https://github.com/kiyoka/mozc-modeless-emacs
 
-;; This file is generated from SCOWL (Spell Checker Oriented Word Lists).
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;; The word list data in this file is generated from SCOWL
+;; (Spell Checker Oriented Word Lists).
 ;; Source: http://wordlist.aspell.net/
 ;; SCOWL Version: 2020.12.07
 ;; SCOWL License: Public Domain
-;;
-;; As SCOWL is in the Public Domain, this file can be freely distributed
-;; under any license, including GPL.
 
 ;;; Commentary:
 ;; This file contains a hash table of common English words (3-10 letters)

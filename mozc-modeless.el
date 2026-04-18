@@ -606,7 +606,8 @@ reverses all changes made during ambient conversion."
   "Keymap for `mozc-modeless-mode'.")
 
 (defvar mozc-modeless--original-mozc-keymap-entry nil
-  "Original binding in mozc-mode-map for `mozc-modeless-convert-key', saved for restoration.")
+  "Original binding in mozc-mode-map for `mozc-modeless-convert-key'.
+Saved for restoration when the mode is disabled.")
 
 (defun mozc-modeless--setup-mozc-keymap ()
   "Set up binding in mozc-mode-map for next candidate selection."
