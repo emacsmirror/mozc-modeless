@@ -1,11 +1,13 @@
 ;;; mozc-modeless.el --- Modeless Japanese input with Mozc  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2025
+;; Copyright (C) 2025 Kiyoka Nishiyama
 
-;; Author: Kiyoka Nishiyama
-;; Keywords: i18n, extentions
+;; Author: Kiyoka Nishiyama <kiyokap@gmail.com>
+;; Maintainer: Kiyoka Nishiyama <kiyokap@gmail.com>
+;; Keywords: i18n, input-method
 ;; Version: 0.10.0
-;; Package-Requires: ((emacs "29.0") (mozc "0") (markdown-mode "2.0"))
+;; Package-Requires: ((emacs "29.0") (mozc "0"))
+;; URL: https://github.com/kiyoka/mozc-modeless-emacs
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -28,9 +30,9 @@
 ;;   (require 'mozc-modeless)
 ;;   (global-mozc-modeless-mode 1)
 ;;
-;; By default, you type in alphanumeric mode. When you want to convert
-;; the preceding romaji to Japanese, press C-j. This will activate Mozc
-;; conversion mode. After you confirm the conversion, the mode automatically
+;; By default, you type in alphanumeric mode.  When you want to convert
+;; the preceding romaji to Japanese, press C-j.  This will activate Mozc
+;; conversion mode.  After you confirm the conversion, the mode automatically
 ;; returns to alphanumeric input.
 
 ;;; Code:
@@ -77,9 +79,10 @@ without any delay."
   :group 'mozc-modeless)
 
 (defcustom mozc-modeless-ambient-punctuation-auto-confirm t
-  "Non-nil means punctuation-triggered conversion auto-confirms with the first candidate.
-When nil, punctuation-triggered conversion leaves Mozc in conversion state,
-allowing the user to select candidates before confirming."
+  "Non-nil means punctuation-triggered conversion auto-confirms.
+The first candidate is used automatically.
+When nil, punctuation-triggered conversion leaves Mozc in conversion
+state, allowing the user to select candidates before confirming."
   :type 'boolean
   :group 'mozc-modeless)
 
@@ -112,7 +115,7 @@ Includes slash (/) as a delimiter for partial conversion.")
 This is used to restore the text when conversion is cancelled.")
 
 (defvar mozc-modeless--skip-check-count 0
-  "Number of post-command-hook calls to skip before checking finish.")
+  "Number of `post-command-hook' calls to skip before checking finish.")
 
 (defvar mozc-modeless--ambient-punctuation-pending nil
   "Punctuation character to insert after conversion confirmation.
@@ -136,8 +139,8 @@ Returns a cons cell (START . STRING) where START is the beginning
 position of the romaji string, or nil if no romaji is found.
 Leading indentation (spaces and tabs) at the beginning of the line
 are excluded from the conversion target.
-In markdown-mode, markdown syntax (list markers using markdown-regex-list,
-headings) are excluded. In text-mode and fundamental-mode, markdown syntax
+In `markdown-mode', markdown syntax (list markers, headings) are
+excluded.  In `text-mode' and `fundamental-mode', markdown syntax
 is also recognized using built-in regex patterns."
   (save-excursion
     (let* ((end (point))
@@ -218,11 +221,11 @@ Returns nil if nothing remains after the slash."
 
 (defun mozc-modeless-convert ()
   "Convert the preceding romaji string to Japanese using Mozc.
-This function is bound to `mozc-modeless-convert-key' (default: C-j).
+This function is bound to \\[mozc-modeless-convert].
 When already in conversion mode, switch to the next candidate.
 If the string contains a slash (/), only the part after the last slash
 is sent to mozc, and the slash is deleted.
-In lisp-interaction-mode, if the preceding character is ')', evaluate
+In `lisp-interaction-mode', if the preceding character is \\='), evaluate
 the expression instead of converting."
   (interactive)
   (cond
@@ -427,7 +430,7 @@ so isolated particles are not triggered."
                #'mozc-modeless--ambient-punctuation-pre-command t))
 
 (defun mozc-modeless--ambient-punctuation-pre-command ()
-  "Cancel the pending ambient punctuation timer when any command runs."
+  "Cancel the pending ambient punctuation timer when any command is run."
   (mozc-modeless--cancel-ambient-punctuation-timer))
 
 (defun mozc-modeless--ambient-punctuation-timer-fire (buffer pos punct-char)
@@ -518,11 +521,12 @@ This function is added to `post-self-insert-hook'."
 (defun mozc-modeless--ambient-convert (romaji-info punct-char saved-undo-list)
   "Perform ambient conversion on ROMAJI-INFO.
 ROMAJI-INFO is (START . STRING) from `mozc-modeless--get-preceding-roman'.
-PUNCT-CHAR is the punctuation character that triggered conversion, or nil for space trigger.
+PUNCT-CHAR is the punctuation character that triggered conversion,
+or nil for space trigger.
 SAVED-UNDO-LIST is the `buffer-undo-list' saved before any modifications,
 used to merge all changes into a single undo group.
-When PUNCT-CHAR is non-nil and `mozc-modeless-ambient-punctuation-auto-confirm' is nil,
-the conversion stays in Mozc candidate selection mode (like C-j)."
+When PUNCT-CHAR is non-nil and `mozc-modeless-ambient-punctuation-auto-confirm'
+is nil, the conversion stays in Mozc candidate selection mode."
   (let* ((start (car romaji-info))
          (roman-string (cdr romaji-info))
          (skip-count (1+ (length roman-string)))
@@ -624,9 +628,10 @@ reverses all changes made during ambient conversion."
 (define-minor-mode mozc-modeless-mode
   "Toggle modeless Japanese input with Mozc.
 
-When enabled, you can type in alphanumeric mode normally. Press \\[mozc-modeless-convert]
-to convert the preceding romaji string to Japanese. After conversion is confirmed,
-the mode automatically returns to alphanumeric input.
+When enabled, you can type in alphanumeric mode normally.  Press
+\\[mozc-modeless-convert] to convert the preceding romaji string to
+Japanese.  After conversion is confirmed, the mode automatically
+returns to alphanumeric input.
 
 Key bindings:
 \\{mozc-modeless-mode-map}"
@@ -637,7 +642,7 @@ Key bindings:
       (progn
         ;; Enable mode
         (unless (fboundp 'mozc-mode)
-          (error "Mozc is not available. Please install mozc.el"))
+          (error "Mozc is not available.  Please install mozc.el"))
         ;; Set up convert key in mozc-mode-map
         (mozc-modeless--setup-mozc-keymap)
         ;; Set up ambient conversion hook
