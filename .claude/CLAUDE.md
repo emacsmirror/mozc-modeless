@@ -655,3 +655,124 @@ shell-mode: コマンド入力中にアンビエント変換は発動しない
 **依存関係の追加:**
 - `mozc-modeless-english-words.el`を`require`で読み込み (mozc-modeless.el:39)
 
+https://github.com/melpa/melpa/pull/9963 の内容を日本語にして、ここに表示してください。
+
+### MELPA PR #9963 の内容（日本語訳）
+
+- **PRタイトル**: mozc-modeless のレシピを追加
+- **作成者**: Kiyoka Nishiyama (@kiyoka)
+- **作成日**: 2026-04-18
+- **ステータス**: OPEN（レビュー待ち）
+- **URL**: https://github.com/melpa/melpa/pull/9963
+
+#### パッケージの簡単な説明
+
+`mozc-modeless` は、Mozc を利用した Emacs 向けの「モードレス」な日本語入力インターフェースを提供します。通常は英数入力モードでタイプし、直前のローマ字を日本語に変換したい時だけ `C-j` を押します。変換確定後は自動的に英数入力モードに戻るため、IME の ON/OFF を切り替える必要がありません。
+
+**主な機能:**
+- モードレス入力: IME の ON/OFF 切り替えが不要
+- 変換後は自動的に英数モードに復帰
+- `C-g` でキャンセルして元のローマ字を復元
+- アンビエント変換: 助詞+スペースや句読点による自動変換（オプション）
+- 誤変換を防ぐための英文検出機能
+
+#### パッケージリポジトリへの直接リンク
+
+https://github.com/kiyoka/mozc-modeless-emacs
+
+#### パッケージとの関係
+
+私はこのパッケージの作者兼メンテナーです。
+
+#### パッケージのアップストリームメンテナーとのやり取り
+
+**不要**
+
+#### チェックリスト
+
+- [x] パッケージは [GPL 互換のフリーソフトウェアライセンス](https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses) のもとでリリースされている
+- [x] [CONTRIBUTING.org](https://github.com/melpa/melpa/blob/master/CONTRIBUTING.org) を読んだ
+- [x] 最新の [package-lint](https://github.com/purcell/package-lint) でパッケージングの問題をチェックし、指摘に対応した
+- [x] Elisp がバイトコンパイル時に警告なくクリーンにコンパイルされる
+- [x] `M-x checkdoc` でパッケージのドキュメント文字列をチェックした
+- [x] [CONTRIBUTING.org](https://github.com/melpa/melpa/blob/master/CONTRIBUTING.org) の手順に従ってパッケージをビルド・インストールした
+
+riscyの指摘事項を翻訳して、ここに追加してください。
+
+### MELPA PR #9963 レビュアー (@riscy, MELPA メンバー) からの指摘事項
+
+ご対応ありがとうございます。まずは初回レビューの結果です。
+
+#### 1. package-lint 20251205.1720 の指摘（`package-lint-main-file` = "mozc-modeless.el"）
+
+```
+1件の問題が見つかりました:
+9:38: 警告: 可能であれば "mozc" への依存に適切なバージョンを指定してください。
+```
+
+→ `mozc-modeless.el` の9行目、`Package-Requires` の `mozc` への依存にバージョン番号が指定されていない。バージョン付きの依存記述（例: `(mozc "X.Y")`）に修正すべき。
+
+#### 2. melpazoid の指摘
+
+```
+- mozc-modeless.el:235:5: 既存関数名はシャープクォート（`#'`）を使うほうが安全です
+- mozc-modeless.el:400:7: `beginning-of-line` の使用を検討してください
+```
+
+→ 235行目付近で関数名をクォートする際は `'function-name` ではなく `#'function-name` を使うべき。400行目付近では独自実装ではなく `beginning-of-line` の利用を検討すべき。
+
+#### 3. checkdoc (Emacs 30.1) の指摘（*合理的な範囲で*修正してほしい）
+
+```
+mozc-modeless.el:609: Lispシンボル `mozc-mode-map' はクォートで囲むべきです
+mozc-modeless.el:613: Lispシンボル `mozc-mode-map' はクォートで囲むべきです
+mozc-modeless.el:622: Lispシンボル `mozc-mode-map' はクォートで囲むべきです
+```
+
+→ ドキュメント文字列内で `mozc-mode-map` というシンボルに言及する箇所は、バッククォートで囲む（例: `` `mozc-mode-map' ``）必要がある。
+
+#### 4. パッケージおよびレシピの修正依頼
+
+- レシピ内で `:fetcher` を `:repo` の**前**に記述してください
+- 可能ならデフォルト形式のレシピが望ましい: `(mozc-modeless :fetcher github :repo "kiyoka/mozc-modeless-emacs")`
+
+
+### MELPA PR #9963 レビュー対応 (2026-04-23)
+
+ブランチ: `feature/melpa-review-fixes`
+
+#### 修正内容
+
+1. **Package-Requires のバージョン指定** (mozc-modeless.el:9)
+   - `(mozc "0")` → `(mozc "1.0")`
+   - package-lint の警告 "Use a properly versioned dependency on \"mozc\"" に対応
+
+2. **sharp-quote の使用** (mozc-modeless.el:235)
+   - `'eval-print-last-sexp` → `#'eval-print-last-sexp`
+   - melpazoid の指摘 "sharp-quote the names of existing functions" に対応
+
+3. **`beginning-of-line` の使用** (mozc-modeless.el:400)
+   - `(goto-char (line-beginning-position))` → `(beginning-of-line)`
+   - melpazoid の指摘 "Consider `beginning-of-line`" に対応
+
+4. **docstring の `mozc-mode-map` をクォート** (mozc-modeless.el:609, 613, 622)
+   - `mozc-mode-map` → `` `mozc-mode-map' ``
+   - checkdoc の指摘 "Lisp symbol `mozc-mode-map' should appear in quotes" に対応
+
+5. **レシピファイルをデフォルト形式に** (mozc-modeless.recipe)
+   - `:fetcher` を `:repo` の前に配置
+   - `:files` を省略してデフォルト形式 `(mozc-modeless :fetcher github :repo "kiyoka/mozc-modeless-emacs")` に変更
+   - MELPA デフォルトで `*.el` がすべてピックアップされるため `:files` 明示は不要
+
+#### 検証
+
+- `check-parens`: OK
+- `emacs --batch -f batch-byte-compile`: 警告なしでコンパイル成功
+- `package-lint`: 警告なし
+- `checkdoc`: 警告なし
+
+#### 次のステップ
+
+- このブランチを PR としてマージ
+- MELPA フォーク (`/Users/kiyoka/Documents/GitHub/melpa`) のレシピも同様にデフォルト形式に更新して MELPA PR #9963 を更新
+

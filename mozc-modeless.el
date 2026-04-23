@@ -6,7 +6,7 @@
 ;; Maintainer: Kiyoka Nishiyama <kiyokap@gmail.com>
 ;; Keywords: i18n, input-method
 ;; Version: 0.10.0
-;; Package-Requires: ((emacs "29.0") (mozc "0"))
+;; Package-Requires: ((emacs "29.0") (mozc "1.0"))
 ;; URL: https://github.com/kiyoka/mozc-modeless-emacs
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -232,7 +232,7 @@ the expression instead of converting."
    ;; In lisp-interaction-mode, evaluate the expression if preceding char is ')'
    ((and (derived-mode-p 'lisp-interaction-mode)
          (eq (char-before) 41))
-    (call-interactively 'eval-print-last-sexp))
+    (call-interactively #'eval-print-last-sexp))
 
    ;; Already in conversion mode, send space to get next candidate
    (mozc-modeless--active
@@ -397,7 +397,7 @@ is >= `mozc-modeless-ambient-english-threshold', return non-nil."
 Leading indentation is excluded."
   (save-excursion
     (let ((end (point)))
-      (goto-char (line-beginning-position))
+      (beginning-of-line)
       (skip-chars-forward " \t")
       (buffer-substring-no-properties (point) end))))
 
@@ -606,11 +606,11 @@ reverses all changes made during ambient conversion."
   "Keymap for `mozc-modeless-mode'.")
 
 (defvar mozc-modeless--original-mozc-keymap-entry nil
-  "Original binding in mozc-mode-map for `mozc-modeless-convert-key'.
+  "Original binding in `mozc-mode-map' for `mozc-modeless-convert-key'.
 Saved for restoration when the mode is disabled.")
 
 (defun mozc-modeless--setup-mozc-keymap ()
-  "Set up binding in mozc-mode-map for next candidate selection."
+  "Set up binding in `mozc-mode-map' for next candidate selection."
   (when (boundp 'mozc-mode-map)
     ;; Save original binding
     (setq mozc-modeless--original-mozc-keymap-entry
@@ -619,7 +619,7 @@ Saved for restoration when the mode is disabled.")
     (define-key mozc-mode-map mozc-modeless-convert-key 'mozc-modeless-convert)))
 
 (defun mozc-modeless--restore-mozc-keymap ()
-  "Restore original binding for `mozc-modeless-convert-key' in mozc-mode-map."
+  "Restore original binding for `mozc-modeless-convert-key' in `mozc-mode-map'."
   (when (boundp 'mozc-mode-map)
     (if mozc-modeless--original-mozc-keymap-entry
         (define-key mozc-mode-map mozc-modeless-convert-key mozc-modeless--original-mozc-keymap-entry)
