@@ -746,6 +746,7 @@ mozc-modeless.el:622: Lispシンボル `mozc-mode-map' はクォートで囲む�
 1. **Package-Requires のバージョン指定** (mozc-modeless.el:9)
    - `(mozc "0")` → `(mozc "1.0")`
    - package-lint の警告 "Use a properly versioned dependency on \"mozc\"" に対応
+   - 注: MELPA の最新版 `20260327.323` を試したが、package-lint が日付ベースを snapshot version として別途警告するため、セマンティックバージョン形式 `"1.0"` を採用
 
 2. **sharp-quote の使用** (mozc-modeless.el:235)
    - `'eval-print-last-sexp` → `#'eval-print-last-sexp`
@@ -775,4 +776,3 @@ mozc-modeless.el:622: Lispシンボル `mozc-mode-map' はクォートで囲む�
 
 - このブランチを PR としてマージ
 - MELPA フォーク (`/Users/kiyoka/Documents/GitHub/melpa`) のレシピも同様にデフォルト形式に更新して MELPA PR #9963 を更新
-
