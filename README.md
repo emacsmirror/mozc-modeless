@@ -22,19 +22,24 @@ https://github.com/user-attachments/assets/371714d6-369c-486e-903f-13aaa434f144
 - mozc.el
 - markdown-modeのインストール
 
-## インストール
+## インストール（MELPA）
 
 **注意**: Emacs 29.0以上が必要です。
 
-### 方法1: MELPA から package-install でインストール（推奨）
-
-MELPAが設定済みの場合：
+MELPAが設定済みの場合、以下のコマンドでインストールしてください：
 
 ```elisp
 M-x package-install RET mozc-modeless RET
 ```
 
-または init.el に追記：
+その上で、init.el に以下を追記して有効化してください：
+
+```elisp
+(require 'mozc-modeless)
+(global-mozc-modeless-mode 1)
+```
+
+または、`use-package` を使う場合は init.el に以下を追記してください（インストールと有効化を同時に行います）：
 
 ```elisp
 (use-package mozc-modeless
@@ -43,42 +48,7 @@ M-x package-install RET mozc-modeless RET
   (global-mozc-modeless-mode 1))
 ```
 
-### 方法2: package-vc-install を使う
-
-Emacs 29以降では、`package-vc-install`でGitHubから直接インストールできます。
-
-- 事前に以下を`*scratch*`バッファで実行してinstallしてください
-
-```elisp
-(package-vc-install
-  '(mozc-modeless . (:url "https://github.com/kiyoka/mozc-modeless-emacs.git")))
-```
-
-- init.elに追記してください
-
-```elisp
-(use-package mozc-modeless
-  :config
-  (global-mozc-modeless-mode 1))
-```
-
-### 方法3: 手動でインストール
-
-- 事前準備
-
-```bash
-mkdir -p ~/.emacs.d/site-lisp/
-cd ~/.emacs.d/site-lisp/
-git clone https://github.com/kiyoka/mozc-modeless-emacs.git
-```
-
-- init.elに追記してください
-
-```elisp
-(add-to-list 'load-path "~/.emacs.d/site-lisp/mozc-modeless-emacs")
-(require 'mozc-modeless)
-(global-mozc-modeless-mode 1)
-```
+MELPA以外のインストール方法は [付録: その他のインストール方法](#付録-その他のインストール方法) を参照してください。
 
 ## 使い方
 
@@ -127,3 +97,44 @@ git clone https://github.com/kiyoka/mozc-modeless-emacs.git
 | `mozc-modeless-ambient-punctuation-auto-confirm` | `t` | `t`: 句読点入力時に第1候補で自動確定 / `nil`: 候補選択モードで止まる |
 | `mozc-modeless-ambient-english-threshold` | `0.8` | 英文判定の閾値（0.0〜1.0） |
 | `mozc-modeless-ambient-exclude-modes` | `(shell-mode term-mode eshell-mode)` | アンビエント変換を無効にするモードのリスト |
+
+## 付録: その他のインストール方法
+
+MELPA を使わずにインストールしたい場合は、以下の方法が利用できます。
+
+### package-vc-install を使う
+
+Emacs 29以降では、`package-vc-install`でGitHubから直接インストールできます。
+
+- 事前に以下を`*scratch*`バッファで実行してinstallしてください
+
+```elisp
+(package-vc-install
+  '(mozc-modeless . (:url "https://github.com/kiyoka/mozc-modeless-emacs.git")))
+```
+
+- init.elに追記してください
+
+```elisp
+(use-package mozc-modeless
+  :config
+  (global-mozc-modeless-mode 1))
+```
+
+### 手動でインストール
+
+- 事前準備
+
+```bash
+mkdir -p ~/.emacs.d/site-lisp/
+cd ~/.emacs.d/site-lisp/
+git clone https://github.com/kiyoka/mozc-modeless-emacs.git
+```
+
+- init.elに追記してください
+
+```elisp
+(add-to-list 'load-path "~/.emacs.d/site-lisp/mozc-modeless-emacs")
+(require 'mozc-modeless)
+(global-mozc-modeless-mode 1)
+```
