@@ -776,3 +776,106 @@ mozc-modeless.el:622: Lispシンボル `mozc-mode-map' はクォートで囲む�
 
 - このブランチを PR としてマージ
 - MELPA フォーク (`/Users/kiyoka/Documents/GitHub/melpa`) のレシピも同様にデフォルト形式に更新して MELPA PR #9963 を更新
+
+
+以下のような内容で、新しいイシューを追加してください。
+mozc-modeless.elで変換候補の管理ができないか調べる。
+最終的には、mozc.elに制御を渡さなくても変換候補選択ができるようにしたい。
+
+そのissueはSumibi二登録するものではありませんでした。取り消してください。
+
+
+### GitHub Issue #34 対応: mozc-modeless.el での変換候補管理（2段階 C-j / 再変換）
+
+#### 背景・調査
+
+Issue #34「mozc-modeless.el で変換候補の管理ができないか調べる」への対応。
+最終目標は「mozc.el に制御を渡さなくても変換候補選択ができる」こと。
+
+まず mozc.el の内部構造（ヘルパー通信プロトコル・保持データ構造）を調査し、
+`docs/mozc-el-internals.md` にまとめた。主な知見:
+
+- mozc.el ⇄ `mozc_emacs_helper`（S式⇔protobuf 変換の薄いブリッジ）⇄ `mozc_server`（変換エンジン）の3層構成
+- ヘルパーがサポートするコマンドは `CreateSession` / `DeleteSession` / `SendKey` の3つのみ。
+  候補の id 直接選択（`SELECT_CANDIDATE`）や再変換（`CONVERT_REVERSE`）に必要な `SEND_COMMAND` は未実装
+- サーバー応答 `Output`（alist）には `candidate-window`（各候補の `value` と `id`）と
+  `all-candidate-words`（全候補）が含まれるが、mozc.el は候補リストを永続保持せず毎回再描画している
+- → 候補リストの「取得」は SendKey だけで可能（ヘルパー改造不要）。
+  id 直接選択・任意テキストの再変換にはヘルパー拡張が必要
+
+#### 設計（ユーザとの議論で決定）
+
+C-j を「変換した読みを覚えておく」方式で2段階化する:
+
+- **point 1**: ローマ字 + C-j → 第1候補で即確定（候補ウィンドウなし）、直接入力を継続。
+  確定テキストに読み（romaji）を text property として埋め込む。
+- **point 2**: 変換済みテキスト上で C-j → その読みを再生し、mozc.el の候補ウィンドウを表示。
+
+決定事項:
+- 候補表示は mozc.el を流用（独自UIではない）
+- 再変換対象は「自分が変換したテキスト」のみ。text property が残る限り何個前でも対象
+- C-j のデフォルト挙動変更（即候補ウィンドウ → 即確定）。後方互換 defcustom は入れない（新挙動のみ）
+- 再変換確定後も新テキストに読みを付け直す
+- アンビエント変換で入った日本語にも読みを付ける
+
+#### 実装内容 (2026-06-13, v0.10.0 → v0.11.0)
+
+1. **読みの記録（text property）**
+   - `mozc-modeless--tag-reading` (mozc-modeless.el:214): 確定テキストに `mozc-modeless-reading` プロパティを付与。あわせて `rear-nonsticky` を付け、直後に打った文字が読みを継承しないようにする（後述のバグ対応）
+   - `mozc-modeless--reconvertible-region-at-point` (mozc-modeless.el:222): カーソル直前のタグ付き領域 (BEG END READING) を検出
+
+2. **C-j の4分岐ディスパッチ** (`mozc-modeless-convert`, mozc-modeless.el:257)
+   1. lisp-interaction の `)` → eval（現状維持）
+   2. 変換中 → 次候補（現状維持）
+   3. タグ付き領域が直前 → `mozc-modeless--reconvert`（再変換）
+   4. それ以外（ローマ字） → `mozc-modeless--convert-preceding-romaji`（即確定）
+
+3. **point 1: 即確定** (`mozc-modeless--convert-preceding-romaji`, mozc-modeless.el:293)
+   - 既存の auto-confirm 経路（`mozc-modeless--ambient-convert` の romaji+space+Enter）を再利用
+   - 確定後、後始末で読みをタグ付け
+
+4. **point 2: 再変換** (`mozc-modeless--reconvert`, mozc-modeless.el:310)
+   - タグ付き領域を削除（元テキストはプロパティ込みで保存）→ 読みを mozc.el 対話変換経路へ
+   - C-g で元の日本語をタグごと復元
+
+5. **対話変換の共通化** (`mozc-modeless--start-conversion`, mozc-modeless.el:328)
+   - 再変換とアンビエント対話変換の重複コードを集約
+
+6. **読みタグ付けの確定フック（2箇所）**
+   - auto-confirm 後始末（`mozc-modeless--ambient-convert` 内, mozc-modeless.el:607）: point 1・アンビエント自動確定をカバー
+   - `mozc-modeless--finish` (mozc-modeless.el:374): point 2・アンビエント対話確定をカバー
+
+7. **状態変数追加**: `mozc-modeless--reading` (mozc-modeless.el:121) — 確定時の再タグ用（cancel 復元用の `--original-string` とは別管理）
+
+#### 修正ファイル
+- `mozc-modeless.el` (v0.10.0 → v0.11.0)
+- `docs/mozc-el-internals.md`（新規: mozc.el 内部構造の調査結果）
+
+#### 動作例
+```
+nihongo + C-j          → 日本語（第1候補で即確定、候補ウィンドウなし）
+（日本語 の直後で）C-j → mozc 候補ウィンドウが開く（C-n/C-p で選択、Enter 確定、C-g で復元）
+数個前の変換済みテキスト上で C-j → 再変換可能（読み property が残る限り）
+```
+
+#### 検証
+- `check-parens` (emacs-lisp-mode): OK
+- `emacs --batch -f batch-byte-compile`: 警告なし
+- `checkdoc`: 警告なし
+- 領域検出ロジック (`mozc-modeless--reconvertible-region-at-point`) の batch スモークテスト合格
+  （カーソル位置別の検出・境界・プロパティ保持を確認）
+- 実機テスト (2026-06-13) で point 1/2 の全フロー確認済み:
+  即確定 / 後続テキストの独立変換 / 候補選択(C-n/C-p/Enter) / C-g 復元 / 数個前の再変換 /
+  slash fence / アンビエント変換＋再変換 / lisp-interaction eval / 即確定時のチラつきなし
+
+#### バグ対応 (実機テスト中に発見・修正)
+
+- **症状**: `nihongo` C-j（→`日本語`）の直後に `henkan` C-j とすると、`henkan` が巻き込まれて `日本語` に戻る
+- **原因**: `mozc-modeless-reading` プロパティがデフォルトで rear-sticky のため、`日本語` の直後に打った `henkan` が読み "nihongo" を継承。C-j 時に「日本語henkan 全体」が読み "nihongo" の再変換対象と誤判定されていた
+- **修正**: `mozc-modeless--tag-reading` で `rear-nonsticky` を付与 (mozc-modeless.el:214)
+
+#### 残課題・今後
+- エッジ: point 1 の自動確定中（`--ambient-in-progress`）の C-j 連打は未ガード
+- 任意の既存日本語（ファイルから開いた等、読み property のないテキスト）の再変換は対象外。
+  実現には `CONVERT_REVERSE`（`SEND_COMMAND`）対応のヘルパー拡張が必要（`docs/mozc-el-internals.md` 6.2/6.3 参照）
+- README の C-j 挙動説明の更新
