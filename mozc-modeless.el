@@ -229,18 +229,28 @@ unless READING is a non-empty string and BEG is before END."
   "Return (BEG END READING) if point is at or within a reconvertible region.
 A reconvertible region is text previously converted by mozc-modeless and
 tagged with the `mozc-modeless-reading' text property.  The region is the
-maximal run of that property covering the character before point.  Returns
-nil when the character before point carries no such property."
-  (when (> (point) (point-min))
-    (let ((reading (get-text-property (1- (point)) 'mozc-modeless-reading)))
-      (when reading
-        (let ((beg (or (previous-single-property-change
-                        (point) 'mozc-modeless-reading)
-                       (point-min)))
-              (end (or (next-single-property-change
-                        (1- (point)) 'mozc-modeless-reading)
-                       (point-max))))
-          (list beg end reading))))))
+maximal run of that property covering the character before point.
+
+Returns nil when the character before point carries no such property, or
+when that character is an ASCII character (code < 128: romaji, digits or
+symbols); in that case a new conversion is preferred over reconversion
+even if a reading is present.  Reconversion fires only when a non-ASCII
+\(Japanese) character precedes point."
+  (let ((before (char-before)))
+    (when (and before
+               ;; Reconvert only when a non-ASCII (Japanese) char precedes
+               ;; point.  Any ASCII char (romaji/digit/symbol) means a new
+               ;; conversion is intended.
+               (>= before 128))
+      (let ((reading (get-text-property (1- (point)) 'mozc-modeless-reading)))
+        (when reading
+          (let ((beg (or (previous-single-property-change
+                          (point) 'mozc-modeless-reading)
+                         (point-min)))
+                (end (or (next-single-property-change
+                          (1- (point)) 'mozc-modeless-reading)
+                         (point-max))))
+            (list beg end reading)))))))
 
 ;;; Main functions
 

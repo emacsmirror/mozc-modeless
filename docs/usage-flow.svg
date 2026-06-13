@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600"
+     font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, Noto Sans CJK JP, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7b4fd0"/>
+    </marker>
+    <filter id="sh" x="-8%" y="-8%" width="116%" height="128%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1f2d3d" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="600" fill="#f5f8fc"/>
+
+  <!-- Title -->
+  <text x="450" y="50" text-anchor="middle" font-size="28" font-weight="700" fill="#1f2d3d">mozc-modeless の使い方</text>
+  <text x="450" y="80" text-anchor="middle" font-size="15" fill="#62707f">C-j で変換 ／ 変換結果の上で もう一度 C-j で再変換</text>
+
+  <!-- ============ Step 1 ============ -->
+  <g filter="url(#sh)"><rect x="60" y="104" width="780" height="188" rx="14" fill="#ffffff" stroke="#e2e8f0"/></g>
+  <circle cx="98" cy="150" r="18" fill="#7b4fd0"/>
+  <text x="98" y="157" text-anchor="middle" font-size="18" font-weight="700" fill="#ffffff">1</text>
+  <text x="138" y="146" font-size="19" font-weight="700" fill="#1f2d3d">ローマ字を入力して C-j</text>
+  <text x="138" y="174" font-size="14" fill="#62707f">→ 第1候補が即確定してバッファに挿入される（候補ウィンドウは出ない）</text>
+
+  <rect x="138" y="208" width="158" height="52" rx="9" fill="#eef2f6" stroke="#cfd9e4"/>
+  <text x="217" y="242" text-anchor="middle" font-family="Menlo, monospace" font-size="23" fill="#55636f">nihongo</text>
+
+  <text x="342" y="230" text-anchor="middle" font-size="13" font-weight="700" fill="#7b4fd0">C-j</text>
+  <line x1="306" y1="238" x2="380" y2="238" stroke="#7b4fd0" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <rect x="396" y="208" width="132" height="52" rx="9" fill="#efe9fb" stroke="#7b4fd0" stroke-width="1.8"/>
+  <text x="462" y="246" text-anchor="middle" font-size="30" fill="#4b2d8f">日本語</text>
+
+  <text x="552" y="240" font-size="14" fill="#62707f">→ そのまま英数入力を続けられる</text>
+
+  <!-- ============ Step 2 (= old step 3) ============ -->
+  <g filter="url(#sh)"><rect x="60" y="316" width="780" height="236" rx="14" fill="#ffffff" stroke="#e2e8f0"/></g>
+  <circle cx="98" cy="362" r="18" fill="#7b4fd0"/>
+  <text x="98" y="369" text-anchor="middle" font-size="18" font-weight="700" fill="#ffffff">2</text>
+  <text x="138" y="358" font-size="19" font-weight="700" fill="#1f2d3d">変換結果の直後で もう一度 C-j → 再変換</text>
+  <text x="138" y="386" font-size="14" fill="#62707f">→ 直前の「日本語」を読み直し、候補ウィンドウで別の候補を選び直せる</text>
+
+  <rect x="138" y="408" width="132" height="52" rx="9" fill="#efe9fb" stroke="#7b4fd0" stroke-width="1.8"/>
+  <text x="200" y="446" text-anchor="middle" font-size="30" fill="#4b2d8f">日本語</text>
+  <rect x="252" y="416" width="3" height="36" fill="#1f2d3d"/>
+
+  <text x="316" y="422" text-anchor="middle" font-size="13" font-weight="700" fill="#7b4fd0">C-j</text>
+  <line x1="280" y1="434" x2="354" y2="434" stroke="#7b4fd0" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <!-- candidate window -->
+  <g filter="url(#sh)"><rect x="370" y="406" width="200" height="132" rx="7" fill="#ffffff" stroke="#b6c2cf"/></g>
+  <rect x="370" y="406" width="200" height="30" rx="7" fill="#7b4fd0"/>
+  <rect x="370" y="421" width="200" height="15" fill="#7b4fd0"/>
+  <text x="384" y="427" font-size="16" fill="#ffffff">日本語</text>
+  <text x="554" y="427" text-anchor="end" font-size="12" fill="#e6dbfb">1/4</text>
+  <text x="384" y="458" font-size="16" fill="#33414f">二本後</text>
+  <text x="384" y="486" font-size="16" fill="#33414f">日本誤</text>
+  <text x="384" y="514" font-size="16" fill="#33414f">にほんご</text>
+
+  <text x="602" y="434" font-size="14.5" fill="#445261">
+    <tspan x="602" dy="0">C-n / C-p：候補を移動</tspan>
+    <tspan x="602" dy="26">Enter：確定</tspan>
+    <tspan x="602" dy="26">C-g：元に戻す</tspan>
+  </text>
+
+  <!-- footer -->
+  <text x="450" y="584" text-anchor="middle" font-size="13" fill="#62707f">ポイント：変換は C-j 一発で確定。気に入らなければ、その場で もう一度 C-j。</text>
+</svg>

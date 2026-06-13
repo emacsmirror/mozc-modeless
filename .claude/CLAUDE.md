@@ -874,6 +874,13 @@ nihongo + C-j          → 日本語（第1候補で即確定、候補ウィン�
 - **原因**: `mozc-modeless-reading` プロパティがデフォルトで rear-sticky のため、`日本語` の直後に打った `henkan` が読み "nihongo" を継承。C-j 時に「日本語henkan 全体」が読み "nihongo" の再変換対象と誤判定されていた
 - **修正**: `mozc-modeless--tag-reading` で `rear-nonsticky` を付与 (mozc-modeless.el:214)
 
+#### 追加調整・図解 (実機テスト中)
+
+- **ディスパッチの優先順位（ユーザー要望）**: カーソル直前の文字が ASCII（コード `< 128`：英字・数字・記号）なら、`mozc-modeless-reading` プロパティがあっても再変換せず **新規変換** にする。再変換が発火するのは直前が **非 ASCII（日本語）** のときだけ (`mozc-modeless--reconvertible-region-at-point`, mozc-modeless.el:226)。rear-nonsticky と二段構えの安全弁。
+- **図解を追加** (`docs/`):
+  - `usage-flow.svg` / `.png`: 操作方法の図（C-j で即確定 → もう一度 C-j で再変換、の2ステップのみ）
+  - `reconvert-text-property.svg` / `.png`: 確定テキストに読みが text property として埋め込まれる仕組みの図
+
 #### 残課題・今後
 - エッジ: point 1 の自動確定中（`--ambient-in-progress`）の C-j 連打は未ガード
 - 任意の既存日本語（ファイルから開いた等、読み property のないテキスト）の再変換は対象外。
