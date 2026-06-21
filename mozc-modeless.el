@@ -52,10 +52,12 @@
   :type 'key-sequence
   :group 'mozc-modeless)
 
-(defcustom mozc-modeless-ambient-enable nil
+(defcustom mozc-modeless-ambient-enable t
   "Non-nil to enable ambient (automatic) conversion.
 When enabled, typing a particle followed by space or punctuation
-automatically triggers Mozc conversion."
+automatically triggers Mozc conversion.
+Set this to nil to disable ambient conversion and rely solely on
+the explicit conversion key (see `mozc-modeless-convert-key')."
   :type 'boolean
   :group 'mozc-modeless)
 

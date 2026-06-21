@@ -72,12 +72,12 @@ MELPA以外のインストール方法は [付録: その他のインストー�
 
 ### アンビエント変換（自動変換）
 
-助詞＋スペースや句読点の入力をトリガーに、自動的にmozc変換を実行する機能です。Mozcの第1候補で自動確定し、タイピングの流れを中断しません。デフォルトは無効です。
-この設定が有能なときでも、C-jでの明示的な変換は可能です。
+助詞＋スペースや句読点の入力をトリガーに、自動的にmozc変換を実行する機能です。Mozcの第1候補で自動確定し、タイピングの流れを中断しません。デフォルトは有効です。
+この設定が有効なときでも、C-jでの明示的な変換は可能です。
 
 ```elisp
-;; 有効化
-(setq mozc-modeless-ambient-enable t)
+;; 無効化（C-jによる明示的な変換のみを使う場合）
+(setq mozc-modeless-ambient-enable nil)
 ```
 
 ```
@@ -91,7 +91,7 @@ MELPA以外のインストール方法は [付録: その他のインストー�
 
 | 変数 | デフォルト | 説明 |
 |------|-----------|------|
-| `mozc-modeless-ambient-enable` | `nil` | アンビエント変換の有効/無効 |
+| `mozc-modeless-ambient-enable` | `t` | アンビエント変換の有効/無効 |
 | `mozc-modeless-ambient-particles` | `("wa" "ha" "ga" ...)` | 変換トリガーとなる助詞リスト |
 | `mozc-modeless-ambient-punctuation` | `("." "," "?")` | 変換トリガーとなる句読点リスト |
 | `mozc-modeless-ambient-punctuation-auto-confirm` | `t` | `t`: 句読点入力時に第1候補で自動確定 / `nil`: 候補選択モードで止まる |
