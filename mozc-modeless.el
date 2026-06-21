@@ -5,7 +5,7 @@
 ;; Author: Kiyoka Nishiyama <kiyokap@gmail.com>
 ;; Maintainer: Kiyoka Nishiyama <kiyokap@gmail.com>
 ;; Keywords: i18n, input-method
-;; Version: 0.11.0
+;; Version: 0.10.0
 ;; Package-Requires: ((emacs "29.0") (mozc "1.0"))
 ;; URL: https://github.com/kiyoka/mozc-modeless-emacs
 
