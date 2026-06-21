@@ -52,6 +52,8 @@ MELPA以外のインストール方法は [付録: その他のインストー�
 
 ## 使い方
 
+![mozc-modeless の使い方](docs/usage-flow.png)
+
 1. ローマ字を入力: `nihongo`
 2. `C-j` を押す → 変換候補表示
 3. `C-j` または `SPC` で候補選択、`RET` で確定

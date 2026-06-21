@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="912" viewBox="0 0 940 912"
+     font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, Noto Sans CJK JP, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7b4fd0"/>
+    </marker>
+    <filter id="sh" x="-8%" y="-8%" width="116%" height="128%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1f2d3d" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <rect width="940" height="912" fill="#f5f8fc"/>
+
+  <!-- Title -->
+  <text x="470" y="48" text-anchor="middle" font-size="29" font-weight="700" fill="#1f2d3d">変換済みテキストに埋め込まれる「読み」</text>
+  <text x="470" y="78" text-anchor="middle" font-size="15" fill="#62707f">mozc-modeless — C-j の即確定変換と再変換のしくみ（text property）</text>
+
+  <!-- left rail -->
+  <line x1="60" y1="163" x2="60" y2="705" stroke="#cdd8e3" stroke-width="2"/>
+
+  <!-- ================= Step 1 ================= -->
+  <g filter="url(#sh)"><rect x="100" y="120" width="800" height="86" rx="12" fill="#ffffff" stroke="#e2e8f0"/></g>
+  <circle cx="60" cy="163" r="16" fill="#7b4fd0"/>
+  <text x="60" y="169" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">1</text>
+  <text x="124" y="148" font-size="17" font-weight="700" fill="#1f2d3d">ローマ字を入力 → C-j で第1候補が即確定し、バッファに挿入</text>
+  <rect x="124" y="161" width="120" height="34" rx="7" fill="#eef2f6" stroke="#cfd9e4"/>
+  <text x="137" y="184" font-family="Menlo, monospace" font-size="18" fill="#55636f">nihongo</text>
+  <text x="289" y="172" text-anchor="middle" font-size="12" font-weight="700" fill="#7b4fd0">C-j</text>
+  <line x1="258" y1="180" x2="320" y2="180" stroke="#7b4fd0" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="332" y="160" width="96" height="36" rx="7" fill="#efe9fb" stroke="#7b4fd0" stroke-width="1.5"/>
+  <text x="380" y="185" text-anchor="middle" font-size="21" fill="#4b2d8f">日本語</text>
+  <text x="448" y="183" font-size="13.5" fill="#62707f">← バッファに挿入された変換結果（第1候補）</text>
+
+  <!-- ================= Step 2 (key) ================= -->
+  <g filter="url(#sh)"><rect x="100" y="232" width="800" height="196" rx="12" fill="#ffffff" stroke="#e2e8f0"/></g>
+  <circle cx="60" cy="330" r="16" fill="#7b4fd0"/>
+  <text x="60" y="336" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">2</text>
+  <text x="124" y="262" font-size="17" font-weight="700" fill="#1f2d3d">挿入された「日本語」の内部 — 読みが text property として埋め込まれている</text>
+
+  <text x="124" y="292" font-size="13" fill="#62707f">画面表示：</text>
+  <rect x="124" y="300" width="112" height="44" rx="8" fill="#efe9fb" stroke="#7b4fd0" stroke-width="1.5"/>
+  <text x="180" y="331" text-anchor="middle" font-size="24" fill="#4b2d8f">日本語</text>
+  <rect x="233" y="307" width="2" height="30" fill="#1f2d3d"/>
+
+  <!-- dashed connector to the hidden property -->
+  <path d="M180,344 L180,372" stroke="#e0a93b" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <text x="196" y="364" font-size="12" fill="#a9772a">［内部を見ると］</text>
+
+  <!-- hidden property note -->
+  <rect x="124" y="372" width="392" height="46" rx="8" fill="#fff8e8" stroke="#e0a93b"/>
+  <text x="138" y="391" font-family="Menlo, monospace" font-size="13" fill="#8a5a00">mozc-modeless-reading : "nihongo"</text>
+  <text x="138" y="409" font-family="Menlo, monospace" font-size="11.5" fill="#8a5a00">rear-nonsticky : t  （直後の文字は読みを継承しない）</text>
+
+  <!-- right caption -->
+  <text x="556" y="306" font-size="13.5" fill="#445261">
+    <tspan x="556" dy="0">画面には「日本語」と表示される</tspan>
+    <tspan x="556" dy="21">だけ。しかし内部には 読み(romaji)</tspan>
+    <tspan x="556" dy="21">が <tspan font-family="Menlo, monospace" fill="#8a5a00">text property</tspan> として</tspan>
+    <tspan x="556" dy="21">埋め込まれている。</tspan>
+    <tspan x="556" dy="21" font-weight="700" fill="#4b2d8f">これが再変換の鍵になる。</tspan>
+  </text>
+
+  <!-- ================= Step 3 ================= -->
+  <g filter="url(#sh)"><rect x="100" y="454" width="800" height="150" rx="12" fill="#ffffff" stroke="#e2e8f0"/></g>
+  <circle cx="60" cy="529" r="16" fill="#7b4fd0"/>
+  <text x="60" y="535" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">3</text>
+  <text x="124" y="486" font-size="17" font-weight="700" fill="#1f2d3d">「日本語」の直後で もう一度 C-j → 再変換</text>
+
+  <rect x="124" y="500" width="112" height="44" rx="8" fill="#efe9fb" stroke="#7b4fd0" stroke-width="1.5"/>
+  <text x="180" y="531" text-anchor="middle" font-size="24" fill="#4b2d8f">日本語</text>
+  <rect x="233" y="507" width="2" height="30" fill="#1f2d3d"/>
+
+  <line x1="246" y1="522" x2="300" y2="522" stroke="#7b4fd0" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- candidate window -->
+  <g filter="url(#sh)"><rect x="312" y="486" width="172" height="112" rx="6" fill="#ffffff" stroke="#b6c2cf"/></g>
+  <rect x="312" y="486" width="172" height="27" rx="6" fill="#7b4fd0"/>
+  <rect x="312" y="500" width="172" height="13" fill="#7b4fd0"/>
+  <text x="324" y="505" font-size="15" fill="#ffffff">日本語</text>
+  <text x="466" y="505" text-anchor="end" font-size="12" fill="#e6dbfb">1/4</text>
+  <text x="324" y="532" font-size="15" fill="#33414f">二本後</text>
+  <text x="324" y="556" font-size="15" fill="#33414f">日本誤</text>
+  <text x="324" y="580" font-size="15" fill="#33414f">にほんご</text>
+
+  <text x="520" y="516" font-size="13.5" fill="#445261">
+    <tspan x="520" dy="0">埋め込んだ読み <tspan font-family="Menlo, monospace" fill="#8a5a00">"nihongo"</tspan> を</tspan>
+    <tspan x="520" dy="21">mozc に再生し、候補ウィンドウで</tspan>
+    <tspan x="520" dy="21">別の候補を選び直せる。</tspan>
+    <tspan x="520" dy="21" font-size="12" fill="#748493">（C-n / C-p で移動・Enter 確定・C-g で復元）</tspan>
+  </text>
+
+  <!-- ================= Step 4 ================= -->
+  <g filter="url(#sh)"><rect x="100" y="630" width="800" height="150" rx="12" fill="#ffffff" stroke="#e2e8f0"/></g>
+  <circle cx="60" cy="705" r="16" fill="#3aa17e"/>
+  <text x="60" y="711" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">4</text>
+  <text x="124" y="662" font-size="17" font-weight="700" fill="#1f2d3d">直前が ASCII（英字・数字・記号）なら 新規変換</text>
+
+  <!-- mixed chip: 日本語(reading) + henkan(no reading) -->
+  <rect x="124" y="676" width="244" height="44" rx="8" fill="#ffffff" stroke="#cfd9e4"/>
+  <rect x="130" y="681" width="74" height="34" rx="5" fill="#efe9fb" stroke="#7b4fd0"/>
+  <text x="167" y="705" text-anchor="middle" font-size="20" fill="#4b2d8f">日本語</text>
+  <text x="214" y="704" font-family="Menlo, monospace" font-size="18" fill="#55636f">henkan</text>
+  <rect x="288" y="685" width="2" height="26" fill="#1f2d3d"/>
+  <text x="130" y="742" font-size="11.5" fill="#7b4fd0">読み付き</text>
+  <text x="214" y="742" font-size="11.5" fill="#8693a0">読みなし</text>
+
+  <text x="392" y="690" font-size="13.5" fill="#445261">
+    <tspan x="392" dy="0">直前の <tspan font-family="Menlo, monospace">henkan</tspan> は ASCII なので、</tspan>
+    <tspan x="392" dy="21">text property があっても <tspan font-weight="700" fill="#3aa17e">新規変換</tspan>。</tspan>
+    <tspan x="392" dy="21">再変換になるのは「日本語」のような</tspan>
+    <tspan x="392" dy="21"><tspan font-weight="700" fill="#4b2d8f">非 ASCII（日本語）の直後</tspan> のときだけ。</tspan>
+  </text>
+
+  <!-- footer -->
+  <text x="470" y="838" text-anchor="middle" font-size="12.5" fill="#62707f">※ text property はメモリ上のバッファにのみ存在し、ファイルに保存すると失われる（保存後は再変換不可）。</text>
+</svg>
